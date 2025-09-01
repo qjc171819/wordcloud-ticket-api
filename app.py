@@ -283,4 +283,5 @@ def generate_wordcloud():
 
 if __name__ == '__main__':
     # 生产环境应设置debug=False
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    port = int(os.environ.get("PORT", 5050))
+    app.run(host='0.0.0.0', port=port, debug=True)

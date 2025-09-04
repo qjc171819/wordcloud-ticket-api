@@ -18,8 +18,8 @@ import logging
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 import urllib.parse
-import certifi
-import socket
+# import certifi
+# import socket
 
 
 
@@ -36,7 +36,7 @@ def get_mongo_client():
     try:
         # 从环境变量获取 MongoDB 连接字符串
         mongo_uri = "mongodb+srv://admin:Diotec2005@cluster0.dpxn7cl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-        client = MongoClient(mongo_uri,tls=True,tlsCAFile=certifi.where())
+        client = MongoClient(mongo_uri)
         # 测试连接
         client.admin.command('ping')
         logger.info("成功连接到 MongoDB")
@@ -348,3 +348,4 @@ def generate_wordcloud():
 if __name__ == '__main__':
     # 生产环境应设置debug=False
     app.run(host='0.0.0.0', port=5080, debug=False)
+

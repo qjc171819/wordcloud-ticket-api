@@ -176,12 +176,12 @@ def generate_custom_wordcloud(word_freq):
 
         # 创建图像缓冲区
         img_buffer = BytesIO()
-        # plt.figure(figsize=(16, 12), dpi=600)
-        # plt.imshow(wc, interpolation='lanczos')
-        # plt.axis('off')
-        # plt.tight_layout(pad=0)
-        # # plt.savefig(img_buffer, format='png', dpi=80, bbox_inches='tight', pad_inches=0)
-        # plt.close()
+        plt.figure(figsize=(6, 4), dpi=100)
+        plt.imshow(wc, interpolation='lanczos')
+        plt.axis('off')
+        plt.tight_layout(pad=0)
+        plt.savefig(img_buffer, format='png', dpi=100, bbox_inches='tight', pad_inches=0)
+        plt.close()
 
 
         # 方法一：直接使用 WordCloud 的方法保存图片

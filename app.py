@@ -183,14 +183,6 @@ def generate_custom_wordcloud(word_freq):
         plt.savefig(img_buffer, format='png', dpi=100, bbox_inches='tight', pad_inches=0)
         plt.close()
 
-
-        # 方法一：直接使用 WordCloud 的方法保存图片
-        wc.to_image()  # 这一步将词云对象转换为一个 PIL Image 对象
-        wc.to_file(img_buffer)  # 通常用于保存到文件，但我们可以传入缓冲区
-        # 或者更直接地，使用 PIL Image 的方法保存
-        img = wc.to_image()
-        img.save(img_buffer, format='PNG')
-
         img_buffer.seek(0)
         return img_buffer
 
@@ -305,3 +297,4 @@ def generate_wordcloud():
 if __name__ == '__main__':
     # 生产环境应设置debug=False
     app.run(host='0.0.0.0', port=5080, debug=False)
+

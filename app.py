@@ -15,6 +15,8 @@ import base64
 from datetime import datetime
 import os
 import logging
+import requests
+import json
 
 
 app = Flask(__name__)
@@ -22,6 +24,17 @@ app = Flask(__name__)
 # 配置日志记录
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# base64图片转url
+def generate_url(base64_image):
+    postUrl = r'https://api.imgbb.com/1/upload'
+    api_key = 'cd252b3a315af679db9b6f10dbe1eff9'
+    user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0'
+    req = requests.post(f'{postUrl}?key={api_key}', data = {'image': base64_image},
+                        header = {'user-agent': user_agent})
+    js = req.json()
+    image_url = js['data']['image']['url']
+    return image_url
 
 
 # 初始化jieba分词器（只在启动时执行一次）
@@ -176,21 +189,12 @@ def generate_custom_wordcloud(word_freq):
 
         # 创建图像缓冲区
         img_buffer = BytesIO()
-        
-        # 方法一：直接使用WordCloud保存图片（推荐）
-        try:
-            img = wc.to_image()  # 将词云转换为PIL Image对象
-            img.save(img_buffer, format='PNG')  # 明确指定格式为PNG
-        except Exception as e:
-            logger.warning(f"直接保存方法失败，使用备选方法: {str(e)}")
-            # 备选方法：精确控制matplotlib输出
-            dpi = 100
-            fig = plt.figure(figsize=(600/dpi, 400/dpi), dpi=dpi)
-            ax = fig.add_axes([0, 0, 1, 1])  # 创建占满整个画布的坐标轴
-            ax.imshow(wc, interpolation='lanczos')
-            ax.axis('off')
-            plt.savefig(img_buffer, format='png', dpi=dpi, bbox_inches=None, pad_inches=0)
-            plt.close(fig)
+        plt.figure(figsize=(6, 4), dpi=100)
+        plt.imshow(wc, interpolation='lanczos')
+        plt.axis('off')
+        plt.tight_layout(pad=0)
+        plt.savefig(img_buffer, format='png', dpi=100, bbox_inches='tight', pad_inches=0)
+        plt.close()
 
         img_buffer.seek(0)
         return img_buffer
@@ -272,6 +276,9 @@ def generate_wordcloud():
         # 将图像转换为Base64字符串 - 这是更可靠的解决方案
         image_base64 = base64.b64encode(image_buffer.getvalue()).decode('utf-8')
 
+        # 将Base64转成图片URL
+        imageUrl = generate_url(base64_image)
+
         # 计算 ticket_type
         ticket_types = set(dataset['工单类型'])
         if {'S', 'M', 'T'}.issubset(ticket_types):
@@ -290,7 +297,8 @@ def generate_wordcloud():
             'image_base64': image_base64,
             'word_freq': term_counts.most_common(20),
             'status': 'success',
-            'ticket_type': ticket_type
+            'ticket_type': ticket_type,
+            'image_Url': imageUrl
         })
 
     except Exception as e:
@@ -306,5 +314,3 @@ def generate_wordcloud():
 if __name__ == '__main__':
     # 生产环境应设置debug=False
     app.run(host='0.0.0.0', port=5080, debug=False)
-
-

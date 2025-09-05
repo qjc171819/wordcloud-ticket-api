@@ -277,7 +277,7 @@ def generate_wordcloud():
         image_base64 = base64.b64encode(image_buffer.getvalue()).decode('utf-8')
 
         # 将Base64转成图片URL
-        imageUrl = generate_url(base64_image)
+        imageUrl = generate_url(image_base64)
 
         # 计算 ticket_type
         ticket_types = set(dataset['工单类型'])
@@ -314,4 +314,3 @@ def generate_wordcloud():
 if __name__ == '__main__':
     # 生产环境应设置debug=False
     app.run(host='0.0.0.0', port=5080, debug=False)
-

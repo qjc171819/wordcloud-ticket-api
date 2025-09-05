@@ -176,12 +176,21 @@ def generate_custom_wordcloud(word_freq):
 
         # 创建图像缓冲区
         img_buffer = BytesIO()
-        plt.figure(figsize=(6, 4), dpi=100)
-        plt.imshow(wc, interpolation='lanczos')
-        plt.axis('off')
-        plt.tight_layout(pad=0)
-        plt.savefig(img_buffer, format='png', dpi=100, bbox_inches='tight', pad_inches=0)
-        plt.close()
+        
+        # 方法一：直接使用WordCloud保存图片（推荐）
+        try:
+            img = wc.to_image()  # 将词云转换为PIL Image对象
+            img.save(img_buffer, format='PNG')  # 明确指定格式为PNG
+        except Exception as e:
+            logger.warning(f"直接保存方法失败，使用备选方法: {str(e)}")
+            # 备选方法：精确控制matplotlib输出
+            dpi = 100
+            fig = plt.figure(figsize=(600/dpi, 400/dpi), dpi=dpi)
+            ax = fig.add_axes([0, 0, 1, 1])  # 创建占满整个画布的坐标轴
+            ax.imshow(wc, interpolation='lanczos')
+            ax.axis('off')
+            plt.savefig(img_buffer, format='png', dpi=dpi, bbox_inches=None, pad_inches=0)
+            plt.close(fig)
 
         img_buffer.seek(0)
         return img_buffer
@@ -297,4 +306,5 @@ def generate_wordcloud():
 if __name__ == '__main__':
     # 生产环境应设置debug=False
     app.run(host='0.0.0.0', port=5080, debug=False)
+
 

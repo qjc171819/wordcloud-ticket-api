@@ -15,38 +15,13 @@ import base64
 from datetime import datetime
 import os
 import logging
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
-import urllib.parse
-# import certifi
-# import socket
 
-
-
-# socket.setdefaulttimeout(10)
 
 app = Flask(__name__)
 
 # 配置日志记录
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-# MongoDB 连接配置
-def get_mongo_client():
-    try:
-        # 从环境变量获取 MongoDB 连接字符串
-        mongo_uri = "mongodb+srv://admin:Diotec2005@cluster0.dpxn7cl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-        client = MongoClient(mongo_uri)
-        # 测试连接
-        client.admin.command('ping')
-        logger.info("成功连接到 MongoDB")
-        return client
-    except Exception as e:
-        logger.error(f"MongoDB 连接失败: {str(e)}")
-        return None
-
-# 初始化 MongoDB 连接
-mongo_client = get_mongo_client()
 
 
 # 初始化jieba分词器（只在启动时执行一次）
@@ -216,43 +191,6 @@ def generate_custom_wordcloud(word_freq):
         raise
 
 
-# 保存词云到 MongoDB
-def save_wordcloud_to_mongo(image_base64):
-    try:
-        if not mongo_client:
-            logger.error("MongoDB 连接不可用")
-            return False
-
-        # 获取数据库和集合
-        db = mongo_client.get_database('mydb')
-        collection = db['wordcloud']
-
-        # 准备数据
-        wordcloud_data = {
-            'image_base64': image_base64,
-            'created_at': datetime.now()
-        }
-
-        # 使用固定ID进行覆盖写入
-        result = collection.update_one(
-            {'_id': 'latest_wordcloud'},
-            {'$set': wordcloud_data},
-            upsert=True  # 如果不存在则插入
-        )
-
-        if result.upserted_id or result.modified_count > 0:
-            logger.info("词云数据成功保存到 MongoDB")
-            return True
-        else:
-            logger.warning("词云数据保存到 MongoDB 但未更改")
-            return True
-
-    except Exception as e:
-        logger.error(f"保存词云到 MongoDB 失败: {str(e)}")
-        return False
-
-
-
 @app.route('/generate_wordcloud', methods=['POST'])
 def generate_wordcloud():
     try:
@@ -325,14 +263,25 @@ def generate_wordcloud():
         # 将图像转换为Base64字符串 - 这是更可靠的解决方案
         image_base64 = base64.b64encode(image_buffer.getvalue()).decode('utf-8')
 
-        # 保存到 MongoDB
-        save_success = save_wordcloud_to_mongo(image_base64)
+        # 计算 ticket_type
+        ticket_types = set(dataset['工单类型'])
+        if {'S', 'M', 'T'}.issubset(ticket_types):
+            ticket_type = "Overview"
+        elif 'S' in ticket_types:
+            ticket_type = "S"
+        elif 'M' in ticket_types:
+            ticket_type = "M"
+        elif 'T' in ticket_types:
+            ticket_type = "T"
+        else:
+            ticket_type = "Unknown"
 
         # 返回结果（包含Base64图像和词频数据）
         return jsonify({
             'image_base64': image_base64,
             'word_freq': term_counts.most_common(20),
-            'status': 'success'
+            'status': 'success',
+            'ticket_type': ticket_type
         })
 
     except Exception as e:
@@ -348,4 +297,3 @@ def generate_wordcloud():
 if __name__ == '__main__':
     # 生产环境应设置debug=False
     app.run(host='0.0.0.0', port=5080, debug=False)
-

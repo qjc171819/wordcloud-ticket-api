@@ -31,7 +31,7 @@ def generate_url(base64_image):
     api_key = 'cd252b3a315af679db9b6f10dbe1eff9'
     user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0'
     req = requests.post(f'{postUrl}?key={api_key}', data = {'image': base64_image},
-                        header = {'user-agent': user_agent})
+                        headers = {'user-agent': user_agent})
     js = req.json()
     image_url = js['data']['image']['url']
     return image_url
@@ -314,3 +314,4 @@ def generate_wordcloud():
 if __name__ == '__main__':
     # 生产环境应设置debug=False
     app.run(host='0.0.0.0', port=5080, debug=False)
+

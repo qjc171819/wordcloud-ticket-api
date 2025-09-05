@@ -176,11 +176,11 @@ def generate_custom_wordcloud(word_freq):
 
         # 创建图像缓冲区
         img_buffer = BytesIO()
-        plt.figure(figsize=(12, 9), dpi=100)
+        plt.figure(figsize=(16, 12), dpi=600)
         plt.imshow(wc, interpolation='lanczos')
         plt.axis('off')
         plt.tight_layout(pad=0)
-        plt.savefig(img_buffer, format='png', dpi=80, bbox_inches='tight', pad_inches=0)
+        # plt.savefig(img_buffer, format='png', dpi=80, bbox_inches='tight', pad_inches=0)
         plt.close()
 
         img_buffer.seek(0)
@@ -297,3 +297,4 @@ def generate_wordcloud():
 if __name__ == '__main__':
     # 生产环境应设置debug=False
     app.run(host='0.0.0.0', port=5080, debug=False)
+

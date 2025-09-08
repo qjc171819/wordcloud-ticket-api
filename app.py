@@ -299,7 +299,7 @@ def generate_wordcloud():
             'status': 'success',
             'ticket_type': ticket_type,
             'image_Url': imageUrl,
-            'created_at': datetime.now()
+            'created_at': datetime.now().isoformat()
         })
 
     except Exception as e:
@@ -315,4 +315,5 @@ def generate_wordcloud():
 if __name__ == '__main__':
     # 生产环境应设置debug=False
     app.run(host='0.0.0.0', port=5080, debug=False)
+
 

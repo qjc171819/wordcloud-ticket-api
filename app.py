@@ -32,12 +32,9 @@ def generate_url(base64_image):
     user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0'
     req = requests.post(f'{postUrl}?key={api_key}', data = {'image': base64_image},
                         headers = {'user-agent': user_agent})
-    if req.status_code != 200:
-        print('Response Status: ' + str(req.status_code))
-    else:
-        js = req.json()
-        image_url = js['data']['image']['url']
-        return image_url
+    js = req.json()
+    image_url = js['data']['image']['url']
+    return image_url
 
 
 # 初始化jieba分词器（只在启动时执行一次）
@@ -318,6 +315,7 @@ def generate_wordcloud():
 if __name__ == '__main__':
     # 生产环境应设置debug=False
     app.run(host='0.0.0.0', port=5080, debug=False)
+
 
 
 
